@@ -46,5 +46,6 @@ jobs:
 
       - name: Run crawler
         env:
+          PYTHONPATH: ${{ github.workspace }}
           FIREBASE_CREDENTIALS: config/firebase-service-account.json
         run: python crawlers/events/firebase/bulk/${{ matrix.brand }}.py

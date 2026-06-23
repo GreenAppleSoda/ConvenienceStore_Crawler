@@ -35,5 +35,6 @@ jobs:
 
       - name: Run crawler
         env:
+          PYTHONPATH: ${{ github.workspace }}
           FIREBASE_CREDENTIALS: config/firebase-service-account.json
         run: python crawlers/locations/firebase/gs25.py

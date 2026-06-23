@@ -7,7 +7,15 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
-import lib._bootstrap  # noqa: F401
+import runpy
+from pathlib import Path
+
+for _p in Path(__file__).resolve().parents:
+    if (_p / "ensure_project_root.py").is_file():
+        runpy.run_path(str(_p / "ensure_project_root.py"), run_name="__main__")
+        break
+else:
+    raise RuntimeError("ensure_project_root.py not found")
 from lib.supabase_location_store import (
     encode_geohash,
     flush_location_batches,
