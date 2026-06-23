@@ -40,9 +40,7 @@ jobs:
       - name: Write Firebase credentials
         env:
           FIREBASE_JSON: ${{ secrets.FIREBASE_KEY }}
-        run: |
-          mkdir -p config
-          printf '%s' "$FIREBASE_JSON" > config/firebase-service-account.json
+        run: python scripts/write_firebase_credentials.py
 
       - name: Run crawler
         env:
