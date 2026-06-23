@@ -3,6 +3,7 @@
 # 상품 필드는 기존과 동일, 문서 단위로 version / updated_at / product_count 포함
 
 import json
+import time
 from datetime import datetime, timezone
 
 import requests
@@ -30,6 +31,7 @@ EVENT_TABS = [
 ]
 
 PAGE_SIZE = 8
+REQUEST_DELAY = 0.5
 STORE_NAME = "GS25"
 COLLECTION_NAME = "GS25_events"
 DOCUMENT_ID = "current"
@@ -84,6 +86,8 @@ def fetch_event_goods_page(session, csrf_token, parameter_list, page_num):
         timeout=15,
     )
     response.raise_for_status()
+    if REQUEST_DELAY:
+        time.sleep(REQUEST_DELAY)
     return parse_api_response(response.text)
 
 

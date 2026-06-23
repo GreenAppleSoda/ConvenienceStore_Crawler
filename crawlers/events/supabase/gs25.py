@@ -2,6 +2,7 @@
 # Firestore bulk document와 동일한 products 구조를 Supabase event_snapshots에 저장
 
 import json
+import time
 
 import requests
 from bs4 import BeautifulSoup
@@ -28,6 +29,7 @@ EVENT_TABS = [
 ]
 
 PAGE_SIZE = 8
+REQUEST_DELAY = 0.5
 STORE_NAME = "GS25"
 
 
@@ -76,6 +78,8 @@ def fetch_event_goods_page(session, csrf_token, parameter_list, page_num):
         timeout=15,
     )
     response.raise_for_status()
+    if REQUEST_DELAY:
+        time.sleep(REQUEST_DELAY)
     return parse_api_response(response.text)
 
 
