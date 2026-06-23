@@ -1,11 +1,11 @@
 # 매장 위치 → Firestore (7-ELEVEN)
-# 매월 4일 10:00 KST
+# 해외 IP 차단 → 스케줄 없음, 로컬 또는 수동 실행만
+#
+# 로컬: python crawlers/locations/firebase/seven_eleven.py
 
 name: Crawl Locations Firebase (7-ELEVEN)
 
 on:
-  schedule:
-    - cron: "0 1 4 * *"
   workflow_dispatch:
 
 jobs:

@@ -1,9 +1,7 @@
-# 행사 상품 → Firestore bulk document (4브랜드 병렬)
+# 행사 상품 → Firestore bulk document (GS25, CU, emart24)
 #
 # 스케줄: 매주 월요일 09:00 KST
-# 7-ELEVEN은 해외(GitHub hosted runner) IP에서 연결이 막힐 수 있습니다.
-# 그 경우 Repository Secret KOREA_HTTPS_PROXY (한국 프록시 URL)를 등록하거나
-# self-hosted runner(한국)에서 seven_eleven만 실행하세요.
+# 7-ELEVEN은 해외 IP 차단 → 로컬에서 crawlers/events/firebase/bulk/seven_eleven.py 실행
 # 위치 크롤은 매월 2~5일(브랜드별 분리)이라, 매월 1일이 월요일이어도
 # 행사(~8 writes)만 돌고 위치 대량 쓰기와 겹치지 않습니다.
 
@@ -26,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        brand: [gs25, cu, seven_eleven, emart24]
+        brand: [gs25, cu, emart24]
 
     steps:
       - uses: actions/checkout@v4
@@ -49,6 +47,4 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
           FIREBASE_CREDENTIALS: config/firebase-service-account.json
-          HTTP_PROXY: ${{ matrix.brand == 'seven_eleven' && secrets.KOREA_HTTPS_PROXY || '' }}
-          HTTPS_PROXY: ${{ matrix.brand == 'seven_eleven' && secrets.KOREA_HTTPS_PROXY || '' }}
         run: python crawlers/events/firebase/bulk/${{ matrix.brand }}.py

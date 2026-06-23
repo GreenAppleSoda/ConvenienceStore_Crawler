@@ -1,10 +1,11 @@
-# 매장 위치 → Supabase (7-ELEVEN) — 매월 4일 10:30 KST
+# 매장 위치 → Supabase (7-ELEVEN)
+# 해외 IP 차단 → 스케줄 없음, 로컬 또는 수동 실행만
+#
+# 로컬: python crawlers/locations/supabase/seven_eleven.py
 
 name: Crawl Locations Supabase (7-ELEVEN)
 
 on:
-  schedule:
-    - cron: "30 1 4 * *"
   workflow_dispatch:
 
 jobs:
