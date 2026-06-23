@@ -1,0 +1,39 @@
+# 매장 위치 → Firestore (GS25)
+# 매월 2일 10:00 KST — 행사 bulk(매주 월)와 겹치지 않도록 1일은 비움
+#
+# Repository Secrets: FIREBASE_KEY
+
+name: Crawl Locations Firebase (GS25)
+
+on:
+  schedule:
+    - cron: "0 1 2 * *"
+  workflow_dispatch:
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - run: pip install -r requirements.txt
+
+      - name: Write Firebase credentials
+        env:
+          FIREBASE_JSON: ${{ secrets.FIREBASE_KEY }}
+        run: |
+          mkdir -p config
+          printf '%s' "$FIREBASE_JSON" > config/firebase-service-account.json
+
+      - name: Run crawler
+        env:
+          FIREBASE_CREDENTIALS: config/firebase-service-account.json
+        run: python crawlers/locations/firebase/gs25.py

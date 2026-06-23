@@ -1,0 +1,14 @@
+curl 'https://emart24.co.kr/api1/area' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7' \
+  -H 'Connection: keep-alive' \
+  -b '_ga=GA1.1.1107876189.1780530517; _ga_Z8VS69ZXNG=GS2.1.s1781225895$o5$g1$t1781225918$j37$l0$h0' \
+  -H 'Referer: https://emart24.co.kr/store' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Whale/4.37.378.12 Safari/537.36' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  -H 'sec-ch-ua: "Chromium";v="146", "Whale";v="4", "Not.A/Brand";v="99"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"'

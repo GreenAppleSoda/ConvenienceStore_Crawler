@@ -1,0 +1,50 @@
+# 행사 상품 → Firestore bulk document (4브랜드 병렬)
+#
+# 스케줄: 매주 월요일 09:00 KST
+# 위치 크롤은 매월 2~5일(브랜드별 분리)이라, 매월 1일이 월요일이어도
+# 행사(~8 writes)만 돌고 위치 대량 쓰기와 겹치지 않습니다.
+
+name: Crawl Events (Firebase bulk)
+
+on:
+  schedule:
+    # 매주 월요일 09:00 KST (UTC 일요일 24:00)
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: crawl-events-firebase
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        brand: [gs25, cu, seven_eleven, emart24]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write Firebase credentials
+        env:
+          FIREBASE_JSON: ${{ secrets.FIREBASE_KEY }}
+        run: |
+          mkdir -p config
+          printf '%s' "$FIREBASE_JSON" > config/firebase-service-account.json
+
+      - name: Run crawler
+        env:
+          FIREBASE_CREDENTIALS: config/firebase-service-account.json
+        run: python crawlers/events/firebase/bulk/${{ matrix.brand }}.py

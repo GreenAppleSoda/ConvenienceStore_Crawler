@@ -1,0 +1,17 @@
+curl 'https://www.7-eleven.co.kr/library/asp/StoreGetGugun.asp' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+  -b '_BS_GUUID=tEDEHI3dNKhC2mLFnpD1Qf89isPeT0AmEd0lW3zK; _ga=GA1.3.702221754.1765255855; _TRK_CR=https%3A%2F%2Fsearch.naver.com%2F; ASPSESSIONIDQQSTBSRA=JIHGNLNAFIFNKNIBIANCGCIH; _TRK_UID=37e3c6cd52580bc967a0432a57d3ae7b:5:36.95486720601851:1781220357803; _TRK_SID=e19220033f98c0486111f3a01ae00054; _gid=GA1.3.1650331445.1781220358; _TRK_EX=3; _gat=1; _ga_98PNQXW48G=GS2.3.s1781220358$o5$g1$t1781221394$j60$l0$h0' \
+  -H 'Origin: https://www.7-eleven.co.kr' \
+  -H 'Referer: https://www.7-eleven.co.kr/' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Whale/4.37.378.12 Safari/537.36' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  -H 'sec-ch-ua: "Chromium";v="146", "Whale";v="4", "Not.A/Brand";v="99"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  --data-raw 'Sido=서울&Gu=%EC%A4%91%EA%B5%AC&selName=storeLayGu'
