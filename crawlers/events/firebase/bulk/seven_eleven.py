@@ -3,7 +3,6 @@
 
 from datetime import datetime, timezone
 
-import requests
 from bs4 import BeautifulSoup
 import runpy
 from pathlib import Path
@@ -15,10 +14,10 @@ for _p in Path(__file__).resolve().parents:
 else:
     raise RuntimeError("ensure_project_root.py not found")
 from lib.firebase_client import get_firestore_client
+from lib.seven_eleven_http import BASE_URL, create_session, request_with_retry, warm_up_session
 from firebase_admin import firestore
 
-DOMAIN = "https://www.7-eleven.co.kr"
-LIST_MORE_URL = f"{DOMAIN}/product/listMoreAjax.asp"
+LIST_MORE_URL = f"{BASE_URL}/product/listMoreAjax.asp"
 FIRST_PAGE_SIZE = 13
 NEXT_PAGE_SIZE = 10
 
@@ -37,21 +36,23 @@ META_DOCUMENT_ID = "current"
 META_KEY = "7_ELEVEN"
 
 db = get_firestore_client()
+session = create_session()
+warm_up_session(session)
 
 
 def fetch_event_page(p_tab, page_size, page_number):
-    response = requests.post(
+    response = request_with_retry(
+        session,
+        "POST",
         LIST_MORE_URL,
+        f"행사 목록 pTab={p_tab} page={page_number}",
         data={
             "intCurrPage": page_number,
             "intPageSize": page_size,
             "pTab": p_tab,
         },
-        timeout=15,
     )
-    if response.ok:
-        return response.text
-    return None
+    return response.text
 
 
 def parse_item_list(html_text):
@@ -73,7 +74,7 @@ def parse_product(item, event_type):
     name = name_el.get_text(strip=True)
     price = price_el.get_text(strip=True).replace("\n", "")
     src = img_el["src"]
-    image_url = f"{DOMAIN}{src}" if src.startswith("/") else src
+    image_url = f"{BASE_URL}{src}" if src.startswith("/") else src
 
     return {
         "store": STORE_NAME,
@@ -88,9 +89,10 @@ def crawl_tab(p_tab, event_type):
     products = []
     page_number = 1
 
-    page1_data = fetch_event_page(p_tab, FIRST_PAGE_SIZE, page_number)
-    if not page1_data:
-        print(f"⚠️ {event_type} 탭 1페이지 로드 실패")
+    try:
+        page1_data = fetch_event_page(p_tab, FIRST_PAGE_SIZE, page_number)
+    except Exception as error:
+        print(f"⚠️ {event_type} 탭 1페이지 로드 실패: {error}")
         return products
 
     for item in parse_item_list(page1_data):
@@ -100,9 +102,10 @@ def crawl_tab(p_tab, event_type):
 
     while True:
         page_number += 1
-        page_data = fetch_event_page(p_tab, NEXT_PAGE_SIZE, page_number)
-        if not page_data:
-            print(f"⚠️ {event_type} 탭 {page_number}페이지 요청 실패")
+        try:
+            page_data = fetch_event_page(p_tab, NEXT_PAGE_SIZE, page_number)
+        except Exception as error:
+            print(f"⚠️ {event_type} 탭 {page_number}페이지 요청 실패: {error}")
             break
 
         page_items = parse_item_list(page_data)
