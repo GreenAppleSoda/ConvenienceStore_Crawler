@@ -6,6 +6,8 @@ import time
 
 import requests
 from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 import runpy
 from pathlib import Path
@@ -31,6 +33,8 @@ SEARCH_URL = f"{BASE_URL}/gscvs/ko/store-services/locationList"
 
 PAGE_SIZE = 5000
 REQUEST_DELAY = 1
+MAX_RETRIES = 5
+RETRY_BACKOFF = 2
 STORE_NAME = "GS25"
 
 BASE_SEARCH_PAYLOAD = {
@@ -65,8 +69,35 @@ BASE_SEARCH_PAYLOAD = {
 }
 
 
+def request_with_retry(session, method, url, label, **kwargs):
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = session.request(method, url, **kwargs)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as error:
+            last_error = error
+            if attempt >= MAX_RETRIES:
+                break
+            wait = RETRY_BACKOFF ** attempt
+            print(f"⚠️ {label} 요청 실패 ({attempt}/{MAX_RETRIES}): {error}")
+            print(f"   {wait}초 후 재시도...")
+            time.sleep(wait)
+    raise last_error
+
+
 def create_session():
     session = requests.Session()
+    retry = Retry(
+        total=3,
+        backoff_factor=0.5,
+        status_forcelist=[500, 502, 503, 504],
+        allowed_methods=["GET", "POST"],
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
     session.headers.update({
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -83,8 +114,7 @@ def create_session():
 
 
 def get_csrf_token(session):
-    response = session.get(LOCATIONS_URL, timeout=15)
-    response.raise_for_status()
+    response = request_with_retry(session, "GET", LOCATIONS_URL, "CSRF 토큰", timeout=15)
     form = BeautifulSoup(response.text, "html.parser").find("form", id="CSRFForm")
     if not form or not form.find("input"):
         raise RuntimeError("CSRFToken을 찾을 수 없습니다.")
@@ -103,12 +133,14 @@ def fetch_location_page(session, csrf_token, page_num):
     payload["pageNum"] = str(page_num)
     payload["pageSize"] = str(PAGE_SIZE)
 
-    response = session.post(
+    response = request_with_retry(
+        session,
+        "POST",
         f"{SEARCH_URL}?CSRFToken={csrf_token}",
+        f"전국 {page_num}페이지",
         data=payload,
         timeout=30,
     )
-    response.raise_for_status()
     return parse_api_response(response.text)
 
 
@@ -166,13 +198,13 @@ def crawl_locations(session, csrf_token):
     return stores
 
 
-delete_store_locations(STORE_NAME)
-
 session = create_session()
 csrf_token = get_csrf_token(session)
 
 print("\n▶ GS25 전국 매장 크롤링 시작 (Supabase)...")
 all_stores = crawl_locations(session, csrf_token)
+
+delete_store_locations(STORE_NAME)
 pending_stores = flush_location_batches(all_stores)
 
 if pending_stores:
