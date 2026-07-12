@@ -237,6 +237,7 @@ def fetch_stores(session, sido, gugun):
 def crawl_all_stores(session):
     pending_stores = []
     all_stores = []
+    seen_shop_codes = set()
 
     init_response = request_with_retry(session, "GET", LAYER_POP_URL, "매장찾기 팝업", timeout=30)
     sido_list = parse_sido_list(init_response.text)
@@ -259,12 +260,22 @@ def crawl_all_stores(session):
                 pending_stores = flush_location_batches(pending_stores)
                 continue
 
+            new_count = 0
             for store in gugun_stores:
+                shop_code = store["shop_code"]
+                if shop_code in seen_shop_codes:
+                    continue
+                seen_shop_codes.add(shop_code)
                 all_stores.append(store)
                 pending_stores.append(store)
+                new_count += 1
 
             pending_stores = flush_location_batches(pending_stores)
-            print(f"    → {len(gugun_stores)}개 조회")
+            dup_count = len(gugun_stores) - new_count
+            if dup_count:
+                print(f"    → {len(gugun_stores)}개 조회 (신규 {new_count}개, 중복 {dup_count}개 제외)")
+            else:
+                print(f"    → {len(gugun_stores)}개 조회")
 
             if REQUEST_DELAY:
                 time.sleep(REQUEST_DELAY)

@@ -59,6 +59,14 @@ def parse_coordinates(lat, lng):
     return lat_f, lng_f
 
 
+def _dedupe_stores(stores):
+    unique = {}
+    for store in stores:
+        key = (store["store"], str(store["shop_code"]))
+        unique[key] = store
+    return list(unique.values())
+
+
 def _stores_to_rows(stores):
     now = datetime.now(timezone.utc).isoformat()
     rows = []
@@ -79,6 +87,10 @@ def _stores_to_rows(stores):
 
 
 def save_locations_batch(stores):
+    if not stores:
+        return
+
+    stores = _dedupe_stores(stores)
     if not stores:
         return
 
