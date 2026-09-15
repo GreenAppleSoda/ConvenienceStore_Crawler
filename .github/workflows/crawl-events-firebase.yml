@@ -1,7 +1,8 @@
-# 행사 상품 → Firestore bulk document (GS25, CU, emart24)
+# 행사 상품 → Firestore bulk document (CU, emart24)
 #
 # 스케줄: 매주 월요일 09:00 KST
 # 7-ELEVEN은 해외 IP 차단 → 로컬에서 crawlers/events/firebase/bulk/seven_eleven.py 실행
+# GS25 홈페이지 구조변경으로 인해 크롤링 불가
 # 위치 크롤은 매월 2~5일(브랜드별 분리)이라, 매월 1일이 월요일이어도
 # 행사(~8 writes)만 돌고 위치 대량 쓰기와 겹치지 않습니다.
 
@@ -24,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        brand: [gs25, cu, emart24]
+        brand: [cu, emart24]
 
     steps:
       - uses: actions/checkout@v4
