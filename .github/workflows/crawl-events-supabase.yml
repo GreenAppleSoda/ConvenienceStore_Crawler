@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: crawl-events-supabase
+  group: crawl-events-supabase-v2
   cancel-in-progress: false
 
 jobs:
