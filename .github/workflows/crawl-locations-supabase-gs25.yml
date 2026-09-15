@@ -1,10 +1,9 @@
 # 매장 위치 → Supabase (GS25) — 매월 2일 10:30 KST
+# GS25 홈페이지 구조 변경으로 인해 크롤링 불가
 
 name: Crawl Locations Supabase (GS25)
 
 on:
-  schedule:
-    - cron: "30 1 2 * *"
   workflow_dispatch:
 
 jobs:
