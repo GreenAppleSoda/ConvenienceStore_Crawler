@@ -2,12 +2,11 @@
 # 매월 2일 10:00 KST — 행사 bulk(매주 월)와 겹치지 않도록 1일은 비움
 #
 # Repository Secrets: FIREBASE_KEY
+# GS25 홈페이지 구조변경으로 인해 크롤링 불가
 
 name: Crawl Locations Firebase (GS25)
 
 on:
-  schedule:
-    - cron: "0 1 2 * *"
   workflow_dispatch:
 
 jobs:
